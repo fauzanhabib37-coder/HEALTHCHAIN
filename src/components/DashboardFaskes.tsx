@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -189,6 +189,18 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [validationResult, setValidationResult] = useState<any | null>(null);
+  const uploadSectionRef = useRef<HTMLDivElement>(null);
+
+  const scrollToUpload = () => {
+    uploadSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+    // Reset form untuk upload baru
+    setSelectedFile(null);
+    setUploadProgress(0);
+    setValidationResult(null);
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -225,6 +237,13 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
     }
   };
 
+  const triggerFileInput = () => {
+    const fileInput = document.getElementById(
+      "file-upload"
+    ) as HTMLInputElement;
+    fileInput?.click();
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved":
@@ -257,7 +276,12 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
                 </div>
                 <div>
                   <div className="text-sm text-gray-600">HealthChain.AI</div>
-                  <div>RS. Cipto Mangunkusumo</div>
+                  <div className="text-lg font-semibold">
+                    RS. Cipto Mangunkusumo
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Faskes Dashboard — Informasi ringkas dan tindakan cepat
+                  </div>
                 </div>
               </div>
               <Badge className="bg-purple-100 text-purple-700">
@@ -316,7 +340,7 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Antrean Saat Ini</p>
-                  <div className="text-3xl mt-2">127</div>
+                  <div className="text-4xl font-semibold mt-2">127</div>
                   <div className="text-sm text-gray-600 mt-1">
                     Pasien menunggu
                   </div>
@@ -333,7 +357,7 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Klaim Bulan Ini</p>
-                  <div className="text-3xl mt-2">1,245</div>
+                  <div className="text-4xl font-semibold mt-2">1,245</div>
                   <div className="flex items-center gap-1 text-sm text-green-600 mt-1">
                     <TrendingUp className="w-4 h-4" />
                     <span>Approval: 94.5%</span>
@@ -351,7 +375,7 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Perangkat Aktif</p>
-                  <div className="text-3xl mt-2">47/52</div>
+                  <div className="text-4xl font-semibold mt-2">47/52</div>
                   <div className="text-sm text-gray-600 mt-1">IoT Devices</div>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -366,7 +390,7 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Avg. AI Score</p>
-                  <div className="text-3xl mt-2">92.8</div>
+                  <div className="text-4xl font-semibold mt-2">92.8</div>
                   <div className="text-sm text-green-600 mt-1">
                     Validasi Dokumen
                   </div>
@@ -480,7 +504,7 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
 
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Upload & AI Validation */}
-          <Card className="border-2 border-purple-200">
+          <Card className="border-2 border-purple-200" ref={uploadSectionRef}>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Brain className="w-5 h-5 text-purple-600" />
@@ -493,7 +517,10 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors cursor-pointer">
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors cursor-pointer"
+                onClick={triggerFileInput}
+              >
                 <input
                   type="file"
                   id="file-upload"
@@ -501,13 +528,18 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
                   onChange={handleFileUpload}
                   accept=".pdf,.jpg,.png"
                 />
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                  <div className="mb-2">Drag & drop atau klik untuk upload</div>
-                  <div className="text-sm text-gray-600">
-                    PDF, JPG, PNG (Max 10MB)
-                  </div>
-                </label>
+                <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <div className="mb-2 text-lg font-medium">
+                  Klik area ini atau seret file untuk mengunggah
+                </div>
+                <div className="text-sm text-gray-600">
+                  PDF, JPG, PNG — Maks 10MB. Setelah unggah, AI akan otomatis
+                  memvalidasi dokumen.
+                </div>
+                <div className="text-xs text-gray-400 mt-2">
+                  Tips: pastikan resume medis dan tanda tangan jelas untuk
+                  akurasi validasi.
+                </div>
               </div>
 
               {selectedFile && (
@@ -758,7 +790,8 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
               <div>
                 <CardTitle>Status Klaim Terbaru</CardTitle>
                 <CardDescription>
-                  Tracking status klaim dengan AI validation
+                  Tracking status klaim dengan AI validation. Klik "Detail"
+                  untuk melihat dokumen yang diunggah dan hasil validasi AI.
                 </CardDescription>
               </div>
               <div className="flex gap-2">
@@ -766,7 +799,7 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
                   <Download className="w-4 h-4 mr-2" />
                   Export
                 </Button>
-                <Button size="sm">
+                <Button size="sm" onClick={scrollToUpload}>
                   <Upload className="w-4 h-4 mr-2" />
                   Upload Baru
                 </Button>
@@ -794,7 +827,7 @@ export default function DashboardFaskes({ onLogout }: DashboardFaskesProps) {
                     <div className="text-right">
                       <div className="text-sm text-gray-600 mb-1">AI Score</div>
                       <div
-                        className={`text-2xl ${
+                        className={`text-3xl font-semibold ${
                           claim.aiScore >= 90
                             ? "text-green-600"
                             : claim.aiScore >= 70
